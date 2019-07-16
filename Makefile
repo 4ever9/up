@@ -13,10 +13,14 @@ LDFLAGS += -X "${VERSION_DIR}.BuildDate=${BUILD_DATE}"
 LDFLAGS += -X "${VERSION_DIR}.CurrentCommit=${GIT_COMMIT}"
 
 install: clean
-	go install -ldflags '${LDFLAGS}' ./cmd/${APP_NAME}
+	export GOPROXY="https://goproxy.io" && go install -ldflags '${LDFLAGS}' ./cmd/${APP_NAME}
 
 release: clean
-	sh scripts/release.sh ${APP_NAME} ${APP_VERSION} ${LDFLAGS} ${CURRENT_PATH}/cmd/${APP_NAME}
+	sh scripts/release.sh ${APP_NAME} ${APP_VERSION} '${LDFLAGS}' ${CURRENT_PATH}/cmd/${APP_NAME}
+
+## make build-linux: Go build linux executable file
+build-linux:
+	export GO111MODULE=on && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build '-ldflags=${LDFLAGS}' -o bin/up-linux ./cmd/${APP_NAME}
 
 test:
 	go test -v .
